@@ -306,7 +306,9 @@ This paper corrects a previous paper's erroneous description of `std::execution:
 [P3383R2 mdspan.at()](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p3383r2.html)
 This paper proposes adding `at()` member functions to `std::mdspan` for memory-safe element access with bounds checking that throws `std::out_of_range` on out-of-bounds access, providing consistency with `std::span` and other containers.
 
-And that completes the technical aspects of this meeting, which is a significant milestone in C++ 's history. The next section contains photos which I managed to take in between the discussions.
+And that completes the technical aspects of this meeting, which is a significant milestone in C++ 's history. 
+
+The next section contains photos which I managed to take in between the discussions. 
 
 ## Say Cheese!
 
@@ -316,3 +318,40 @@ Here is a picture with my colleagues - Bryce Lelbach, Gonzalo Brito and Marco Fo
 <img src = "imgs/bryce.jpg" />
 <img src = "imgs/marco.jpg" />
 <img src = "imgs/gonzalo.jpg" />
+
+And here are some pictures capturing the beautiful city of Sofia.
+
+
+Alexander Nevsky Cathedral 
+
+<img src = "imgs/nevsky.jpg" />
+
+Bell Tower
+
+<img src = "imgs/bell.jpg" />
+
+Vitosha Boulevard
+
+<img src = "imgs/vitosha.jpg" />
+
+City Garden
+
+<img src = "imgs/city_garden.jpg" />
+
+National Palace of Culture
+
+<img src = "imgs/ndk.jpg" />
+
+Sveti Sedmochislenitsi Church
+
+<img src = "imgs/city1.jpg" />
+
+And for those passionate about cars , here is a P720 s Mclaren spotted at Doha Airport along with a Ducati Diavel 1200s
+
+<img src = "imgs/720s.jpg" />
+
+
+## Conclusion
+
+The WG21 meeting in Sofia has been well received particularly from Nvidia's point of view with both core and library adding new features. The next meeting will start off from the papers which will be debated and discussed for C++ 29. 
+
