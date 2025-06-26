@@ -1,12 +1,62 @@
 
 # Nvidia 2025-06 ISO C++ WG21 Committee Meeting Trip Report
 
-ISO C++ Standardization Meeting for C++ 26 conlcuded last week at Sofia, Bulgaria. This was the final meeting for adding both core and library features to C++ 26 working draft. In general, the single most significant addition to the core was ```Reflection```  and this will change how we write C++ at a fundamental level.
+ISO C++ Standardization Meeting for C++ 26 conlcuded last week at [Sofia, Bulgaria](https://wg21.link/n5004). This was the final meeting for adding both core and library features to C++ 26 working draft. In general, the single most significant addition to the core was ```Reflection```  and this will change how we write C++ at a fundamental level. There were 34 paper additions to the standard Library - keeping aside 10 paper additions to Core , 5 of which were `reflection` papers. One of those 34 Library papers included my co-authored paper.
 
+## Reflection
 
+Reflection is perhaps the most significant feature voted into the standards since C++ 11 `constexpr`. Reflection in C++ refers to the ability of a program to examine, introspect, and potentially modify its own structure and behavior at compile time or runtime. C++ did infact support some subtle variants of "reflective metaprogramming" through `RTTI: Runtime Type Information` (through `typeid` operator and `std::type_info` construct) and sometimes through `Template Metaprogramming`(Compile time Metagprogramming).
+[P1240R2](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p1240r2.pdf) was an early paper to introduce the notion of static reflections in C++ with the reflection TS mainly introducing the `^` operator which can be used as :
+```
+constexpr std::meta::info reflection = ^name_or_postfix_expr;
+```
+This paved the way for [P2996R12](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p2996r12.html) by Dan Katz et al, which introduced the following additional featues
 
+- The representation of program elements via constant-expressions producing reflection values — reflections for short — of an opaque type `std::meta::info`
+- A `reflection operator` (prefix ^^) that computes a reflection value for its operand construct
+- A number of consteval metafunctions to work with reflections (including deriving other reflections)
+- Constructs called splicers to produce grammatical elements from reflections (e.g., ``[: refl :]``).
 
+A practical example of reflection is converting enums to string :
 
+```
+template<typename E, bool Enumerable = std::meta::is_enumerable_type(^^E)>
+  requires std::is_enum_v<E>
+constexpr std::string_view enum_to_string(E value) {
+  if constexpr (Enumerable)
+    template for (constexpr auto e :
+                  std::define_static_array(std::meta::enumerators_of(^^E)))
+      if (value == [:e:])
+        return std::meta::identifier_of(e);
+
+  return "<unnamed>";
+}
+
+int main() {
+  enum Color : int;
+  static_assert(enum_to_string(Color(0)) == "<unnamed>");
+  std::println("Color 0: {}", enum_to_string(Color(0)));  // prints '<unnamed>'
+
+  enum Color : int { red, green, blue };
+  static_assert(enum_to_string(Color::red) == "red");
+  static_assert(enum_to_string(Color(42)) == "<unnamed>");
+  std::println("Color 0: {}", enum_to_string(Color(0)));  // prints 'red'
+}
+```
+
+The paper has some [concrete examples](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p2996r12.html#examples) as to the capabilities of runtime type transfers, serialization, getting the class layouts and other enhancements which were not possible before. In Sofia, there were 6 reflection papers (including the above) with  5 of those dedicated to Core and 1 for Library feature. The below contains the summarizations of the papers taken from Herb's Blog:
+
+- [P3394R4](https://wg21.link/p3394) adds the ability to reflect additional attribute information, which makes reflection much more customizable and flexible. Definitely check out the examples in the paper.
+
+- [P3293R3](https://wg21.link/p3293) adds better support for treating base class subobjects uniformly with member subobjects, again making reflection more usable.
+
+- [P3491R3](https://wg21.link/p3491)adds functions that were split off from the main reflection paper P2996, which make it easier to convert reflected data to run-time data.
+
+- [P1306R5](https://wg21.link/p1306) adds “template for” to make it easy to loop over reflection data at compile time.
+
+- [P3096R12](https://wg21.link/p3096) adds library  support for, you guessed it, reflecting function parameters. 
+
+Reflection is something which was long due for C++ and this will fundamentally change the way compilers and formal language interpreters are written. 
 
 ## Papers presented and added to C++ 26 Working Draft
  
