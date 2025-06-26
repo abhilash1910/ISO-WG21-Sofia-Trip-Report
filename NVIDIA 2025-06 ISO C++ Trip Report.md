@@ -122,3 +122,44 @@ The Standard does not currently specify the semantics of `get_scheduler(get_env(
 This forces developers to use the bug-prone `std::string_view::data()` approach or create custom null-terminated string view types like `zstring_view.`The proposal aims to standardize a null-terminated string view utility to address this common need safely.
 
 ## Library Working Group Features for C++ 26
+
+As I was fully focused on Library additions, here are a few of the 34 accepted proposals discussed in detail:
+
+[P3179R9 Parallel Range Algorithms](https://wg21.link/p3179)
+*Nvidia Authors: Bryce Lelbach*
+This paper is very close to me as it was a paper I was working intermittently with my ex- Intel colleague Ruslan Arutyunyan and it has paved the way for our paper on numeric algorithms. The proposal adds parallel algorithms to be used with `std::ranges` library. This opens a wide range of possibilities of interfacing different execution policies which can be used with parallel algorithms and ranges. Below is a matrix transpose program without this feature:
+```
+std::mdspan A{input,  N, M};
+std::mdspan B{output, M, N};
+
+auto indices = std::views::cartesian_product(
+  std::views::iota(0, A.extent(0)),
+  std::views::iota(0, A.extent(1)));
+
+std::for_each(std::execution::par_unseq,
+  std::ranges::begin(indices),
+  std::ranges::end(indices),
+  [=] (auto idx) {
+    auto [i, j] = idx;
+    B[j, i] = A[i, j];
+  });
+```
+With the newly introduced parallel support for ranges, this can be written as :
+```
+std::mdspan A{input,  N, M};
+std::mdspan B{output, M, N};
+
+std::ranges::for_each(std::execution::par_unseq,
+  std::views::cartesian_product(
+    std::views::iota(0, A.extent(0)),
+    std::views::iota(0, A.extent(1))),
+  [=] (auto idx) {
+    auto [i, j] = idx;
+    B[j, i] = A[i, j];
+  });
+```
+
+
+
+[P3709 Reconsider parallel_ranges::rotate_copy and reverse_copy](https://wg21.link/P3709)
+This is an extension of the previous paper. Library Evolution Working Group approved the "range-as-the-output" design for parallel range algorithms, where algorithms return past-the-last iterator for input when output size is insufficient (e.g., `std::ranges::copy` returns `input.begin() + 3` when copying only 3 elements). While this works well for simple algorithms, it creates consistency problems for `reverse_copy` and `rotate_copy` because these algorithms traverse input differently—`reverse_copy` goes in reverse and `rotate_copy` splits ranges, meaning past-the-last iterator is never actually the end iterator even with sufficient output size. The design challenge is that serial range algorithms always return last for these operations, but parallel versions would return different iterators even when output size is sufficient, creating inconsistency. Since future serial "range-as-the-output" algorithms may need to return both stop point and last iterator information, parallel algorithms need to be designed to return more information for random access iterators to maintain consistency between serial and parallel versions.The proposal recognizes that `reverse_copy` and `rotate_copy` need special handling despite the goal of keeping the same return types as existing range algorithms.
