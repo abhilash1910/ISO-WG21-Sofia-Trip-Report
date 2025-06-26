@@ -1,6 +1,8 @@
 
 # Nvidia 2025-06 ISO C++ WG21 Committee Meeting Trip Report
 
+(Abhilash Majumder, Nvidia)
+
 <img src = "imgs/sofia.jpg" />
 
 ISO C++ Standardization Meeting for C++ 26 conlcuded last week at [Sofia, Bulgaria](https://wg21.link/n5004). This was the final meeting for adding both core and library features to C++ 26 working draft. In general, the single most significant addition to the core was ```Reflection```  and this will change how we write C++ at a fundamental level. There were 34 paper additions to the standard Library - keeping aside 10 paper additions to Core , 5 of which were `reflection` papers. One of those 34 Library papers included my co-authored paper.
