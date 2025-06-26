@@ -93,8 +93,26 @@ Here is me, delighted after the discussion with Zach
 <img src = "imgs/ranges.jpg" />
 
 
-## Core Working Group Features for C++ 26
+## Nvidia's proposals 
 
+There were proposals by my colleagues on different parts of the Standard Library . Here are some of them which have a profound impact on the language operability. 
+
+- [P3481R4 std::execution::bulk() issues](https://isocpp.org/files/papers/P3481R4.html)
+ *Nvidia Authors: Mark Hoemmen, Bryce Lelbach*
+The paper outlines what  is permissible in the customization of `bulk()` and also to resolve the lack of an execution policy for the provided functor . The paper also addresses the absence of chunking in the default implementation of `bulk()`. This proposal also adds `bulk_chunked` and `bulk_unchunked` in addition to `bulk()`. Proposal is accepted in the C++ 26 working draft.
+
+- [P3111R6 Atomic Reduction Operations](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p3111r6.html)
+*Nvidia Authors: Gonzalo Brito, Simon Cooksey, Dan Lustig*
+This paper outlines Atomic Reduction Operations which are `read-modify-write` operations that don't fetch old values or act as reads for synchronization, enabling hardware acceleration on modern CPUs and GPUs. The proposal allows atomic memory operations that aren't reads to be used in unsequenced execution contexts.
+It also extends atomic arithmetic reductions for floating-point types by assuming floating-point arithmetic is associative. Proposal is accepted in the C++ 26 working draft.
+
+- [P3008R5 Atomic floating point min/max](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p3008r5.html)
+*Nvidia Authors: Gonzalo Brito*
+This paper addresses discrepancies in a pre-existing paper related to `atomic<T>::fetch_min/max` on contemporary hardwares and IEEE standards. Also discusses the results from `C (fmin/fmax)`, `C23 (maximum/minimum)` along with hardware atomic floating point apis such as `atom, red` for `PTX` , `AOP_FMIN/FMAX` for `Intel Xe ISA` which adhere to IEEE-2019 compat standards. Proposal is accepted in C++ 26 working draft.
+
+- [P3718R0 Fixing Lazy Sender Algorithm Customization, Again](https://isocpp.org/files/papers/P3718R0.html)
+*Nvidia Authors: Eric Niebler*
+The Standard does not currently specify the semantics of `get_scheduler(get_env(rcvr))`.  This is defined as the “current scheduler,” but the Standard does not impose requirements on algorithms actually to execute / start / complete operations on the “current scheduler.”  The definition of `get_scheduler()` does not define any semantics, only mechanics. This paper proposes to fix this by requiring that operation states are started on the scheduler of the receiver’s environment.A previous paper introducing late customization contained an error where the customization logic for `continues_on` and `schedule_from` was inadvertently reversed. This paper corrects that mistake and is added in the C++ 26 working draft.
 
 
 ## Library Working Group Features for C++ 26
