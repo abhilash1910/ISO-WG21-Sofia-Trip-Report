@@ -5,6 +5,11 @@
 
 ISO C++ Standardization Meeting for C++ 26 conlcuded last week at [Sofia, Bulgaria](https://wg21.link/n5004). This was the final meeting for adding both core and library features to C++ 26 working draft. In general, the single most significant addition to the core was ```Reflection```  and this will change how we write C++ at a fundamental level. There were 34 paper additions to the standard Library - keeping aside 10 paper additions to Core , 5 of which were `reflection` papers. One of those 34 Library papers included my co-authored paper.
 
+
+<img src = "imgs/wg21.jpg" />
+
+The six-day (16th - 21st June) C++ standards meeting was hosted by Chaos and C++ Alliance with about 200 attendees (two-thirds in-person, one-third remote via Zoom) representing nearly 30 nations. The meeting welcomed 25 new first-time guest attendees (mostly in-person) plus additional new official national body representatives. The sessions started off with the initial Plenary guidelines on 16th and ended with the final Plenary voting polls for Core and Library at 21st.
+
 ## Reflection
 
 Reflection is perhaps the most significant feature voted into the standards since C++ 11 `constexpr`. Reflection in C++ refers to the ability of a program to examine, introspect, and potentially modify its own structure and behavior at compile time or runtime. C++ did infact support some subtle variants of "reflective metaprogramming" through `RTTI: Runtime Type Information` (through `typeid` operator and `std::type_info` construct) and sometimes through `Template Metaprogramming`(Compile time Metagprogramming).
@@ -281,4 +286,23 @@ The current `std::simd` proposal lacks easy ways to convert between `simd_mask` 
 
 [P3480R5 std::simd is a range](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p3480r5.pdf)
 The paper proposes making `basic_simd` and `basic_simd_mask` into read-only ranges, leveraging C++ 20's updated iterator concepts. Previously, C++ 17 iterator categories required `operator*` to return lvalue references, but since SIMD objects don't contain sub-objects, their `operator[]` returns prvalues, limiting iterators to `Cpp17InputIterator` category despite having random access behavior. This created a conceptual mismatch that prevented making SIMD types into ranges in the original Parallelism TS 2. With C++20's iterator concepts no longer requiring lvalue references, SIMD types can now be proper read-only ranges where iterator dereference returns prvalues and sentinels provide useful abstraction tools.
+
+
+## Papers of Special Interest
+
+Since it not possible to cover the entirety of all the papers discussed and debated on, here are some exclusive papers which requires mention:
+
+[P2830 Standardized Constexpr Type Ordering](https://wg21.link/p2830) 
+This paper makes it possible for portable C++ code to sort types at compile time.
+
+[P3552R2 Add a Coroutine Task Type](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p3552r2.pdf)
+This paper provides a task type to integrate coroutines with sender/receiver, C++26’s new async model.
+
+[P3682 Remove std::execution::split](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p3682r0.pdf)
+This paper corrects a previous paper's erroneous description of `std::execution::split`, clarifying that it creates a multi-shot sender with shared state for both single-shot and multi-shot inputs rather than acting as identity for multi-shot senders. Following SG1's removal of `std::execution::split`, Rob Leahy and Bryce Lelbach proposed a `fork` alternative that returns a fork state object vending senders via `get_sender()` with specified cardinality for truly lazy execution, addressing split's problematic eager nature for CUDA graph schedulers.
+
+[P3383R2 mdspan.at()](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p3383r2.html)
+This paper proposes adding `at()` member functions to `std::mdspan` for memory-safe element access with bounds checking that throws `std::out_of_range` on out-of-bounds access, providing consistency with `std::span` and other containers.
+
+And that completes the technical aspects of this meeting, which is a significant milestone in C++ 's history. The next section contains photos which I managed to take in between the discussions.
 
