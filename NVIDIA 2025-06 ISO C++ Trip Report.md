@@ -99,36 +99,89 @@ Here is me, delighted after the discussion with Zach
 
 There were proposals by my colleagues on different parts of the Standard Library . Here are some of them which have a profound impact on the language operability. 
 
-- [P3481R4 std::execution::bulk() issues](https://isocpp.org/files/papers/P3481R4.html)
+[P3481R4 std::execution::bulk() issues](https://isocpp.org/files/papers/P3481R4.html)
  *Nvidia Authors: Mark Hoemmen, Bryce Lelbach*
-The paper outlines what  is permissible in the customization of `bulk()` and also to resolve the lack of an execution policy for the provided functor . The paper also addresses the absence of chunking in the default implementation of `bulk()`. This proposal also adds `bulk_chunked` and `bulk_unchunked` in addition to `bulk()`. Proposal is accepted in the C++ 26 working draft.
+The paper outlines what  is permissible in the customization of `bulk()` and also to resolve the lack of an execution policy for the provided functor . The paper also addresses the absence of chunking in the default implementation of `bulk()`. This proposal also adds `bulk_chunked` and `bulk_unchunked` in addition to `bulk()`. This paper allows to extend a thin wrapper on top of `bulk / bulk_chunked / bulk_unchunked` on the user side that calls the algorithm with the execution policy of choice. Something like:
+```
+auto user_bulk_par(auto prev, auto size, auto f) {
+  return std::execution::bulk(std::execution::par, prev, size, f);
+}
+```
+Proposal is accepted in the C++ 26 working draft.
 
-- [P3111R6 Atomic Reduction Operations](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p3111r6.html)
+[P3111R6 Atomic Reduction Operations](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p3111r6.html)
 *Nvidia Authors: Gonzalo Brito, Simon Cooksey, Dan Lustig*
 This paper outlines Atomic Reduction Operations which are `read-modify-write` operations that don't fetch old values or act as reads for synchronization, enabling hardware acceleration on modern CPUs and GPUs. The proposal allows atomic memory operations that aren't reads to be used in unsequenced execution contexts.
-It also extends atomic arithmetic reductions for floating-point types by assuming floating-point arithmetic is associative. Proposal is accepted in the C++ 26 working draft.
+It also extends atomic arithmetic reductions for floating-point types by assuming floating-point arithmetic is associative. 
+A sample snippet using `fetch_add` taken from the paper which gives Undefined Behaviour and is slow:
+```cpp
+#include <algorithm>
+#include <atomic>
+#include <execution>
+using namespace std;
+using execution::par_unseq;
 
-- [P3008R5 Atomic floating point min/max](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p3008r5.html)
+int main() {
+  size_t N = 10000;
+  vector<int> v(N, 0);
+  atomic<int> atom = 0;
+  for_each_n(par_unseq, 
+     v.begin(), N,
+    [&](auto& e) {
+      // UB+SLOW:
+      atom.fetch_add(e);
+  }); 
+  return atom.load();
+}
+```
+With this proposal of `store_add` here is the updated code which is safe and fast:
+
+```cpp
+#include <algorithm>
+#include <atomic>
+#include <execution>
+using namespace std;
+using execution::par_unseq;
+
+int main() {
+  size_t N = 10000;
+  vector<int> v(N, 0);
+  atomic<int> atom = 0;
+  for_each_n(par_unseq, 
+     v.begin(), N,
+    [&](auto& e) {
+      // OK+FAST
+      atom.store_add(e);
+  }); 
+  return atom.load();
+}     
+```
+Proposal is accepted in the C++ 26 working draft.
+
+[P3008R5 Atomic floating point min/max](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p3008r5.html)
 *Nvidia Authors: Gonzalo Brito*
 This paper addresses discrepancies in a pre-existing paper related to `atomic<T>::fetch_min/max` on contemporary hardwares and IEEE standards. Also discusses the results from `C (fmin/fmax)`, `C23 (maximum/minimum)` along with hardware atomic floating point apis such as `atom, red` for `PTX` , `AOP_FMIN/FMAX` for `Intel Xe ISA` which adhere to IEEE-2019 compat standards. Proposal is accepted in C++ 26 working draft.
 
-- [P3718R0 Fixing Lazy Sender Algorithm Customization, Again](https://isocpp.org/files/papers/P3718R0.html)
+[P3718R0 Fixing Lazy Sender Algorithm Customization, Again](https://isocpp.org/files/papers/P3718R0.html)
 *Nvidia Authors: Eric Niebler*
 The Standard does not currently specify the semantics of `get_scheduler(get_env(rcvr))`.  This is defined as the “current scheduler,” but the Standard does not impose requirements on algorithms actually to execute / start / complete operations on the “current scheduler.”  The definition of `get_scheduler()` does not define any semantics, only mechanics. This paper proposes to fix this by requiring that operation states are started on the scheduler of the receiver’s environment.A previous paper introducing late customization contained an error where the customization logic for `continues_on` and `schedule_from` was inadvertently reversed. This paper corrects that mistake and is added in the C++ 26 working draft.
 
-- [P3655R2 std::zstring_view](https://isocpp.org/files/papers/P3655R2.html)
+[P3557R2 High Quality Sender Diagnostics with Constexpr Exceptions](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p3557r2.html)
+*Nvidia Authors: Eric Niebler*
+This paper proposes leveraging C++26's new support for exceptions during constant-evaluation to improve error reporting in sender algorithms. Since computing completion signatures is complex meta-programming that often produces incomprehensible error messages deep within the meta-program, the proposal uses constant-evaluation exceptions to automatically propagate type errors to the API boundary where they can be reported concisely. This approach significantly improves user diagnostics while simplifying the development of new sender algorithms by providing clearer error propagation similar to how runtime exceptions work for runtime errors.
+
+[P3655R2 std::zstring_view](https://isocpp.org/files/papers/P3655R2.html)
 *Nvidia Authors: Marco Foco*
 `std::string_view` is highly useful but not null-terminated, making it unsuitable for C++ APIs, operating system calls, and other interfaces requiring null-terminated strings.
-This forces developers to use the bug-prone `std::string_view::data()` approach or create custom null-terminated string view types like `zstring_view.`The proposal aims to standardize a null-terminated string view utility to address this common need safely.
+This forces developers to use the bug-prone `std::string_view::data()` approach or create custom null-terminated string view types like `zstring_view.`The proposal aims to standardize a null-terminated string view utility to address this common need safely. 
 
 ## Library Working Group Features for C++ 26
 
-As I was fully focused on Library additions, here are a few of the 34 accepted proposals discussed in detail:
+As I was fully focused on Library additions specifically for parallelism and SIMD, here are a few of the 34 accepted proposals discussed in detail:
 
 [P3179R9 Parallel Range Algorithms](https://wg21.link/p3179)
-*Nvidia Authors: Bryce Lelbach*
 This paper is very close to me as it was a paper I was working intermittently with my ex- Intel colleague Ruslan Arutyunyan and it has paved the way for our paper on numeric algorithms. The proposal adds parallel algorithms to be used with `std::ranges` library. This opens a wide range of possibilities of interfacing different execution policies which can be used with parallel algorithms and ranges. Below is a matrix transpose program without this feature:
-```
+```cpp
 std::mdspan A{input,  N, M};
 std::mdspan B{output, M, N};
 
@@ -145,7 +198,7 @@ std::for_each(std::execution::par_unseq,
   });
 ```
 With the newly introduced parallel support for ranges, this can be written as :
-```
+```cpp
 std::mdspan A{input,  N, M};
 std::mdspan B{output, M, N};
 
@@ -163,3 +216,69 @@ std::ranges::for_each(std::execution::par_unseq,
 
 [P3709 Reconsider parallel_ranges::rotate_copy and reverse_copy](https://wg21.link/P3709)
 This is an extension of the previous paper. Library Evolution Working Group approved the "range-as-the-output" design for parallel range algorithms, where algorithms return past-the-last iterator for input when output size is insufficient (e.g., `std::ranges::copy` returns `input.begin() + 3` when copying only 3 elements). While this works well for simple algorithms, it creates consistency problems for `reverse_copy` and `rotate_copy` because these algorithms traverse input differently—`reverse_copy` goes in reverse and `rotate_copy` splits ranges, meaning past-the-last iterator is never actually the end iterator even with sufficient output size. The design challenge is that serial range algorithms always return last for these operations, but parallel versions would return different iterators even when output size is sufficient, creating inconsistency. Since future serial "range-as-the-output" algorithms may need to return both stop point and last iterator information, parallel algorithms need to be designed to return more information for random access iterators to maintain consistency between serial and parallel versions.The proposal recognizes that `reverse_copy` and `rotate_copy` need special handling despite the goal of keeping the same return types as existing range algorithms.
+
+[P2079R8 Parallel Scheduler](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p2079r8.html)
+This proposal provides a standard async execution context that portably guarantees forward progress, aka an interface for thread pools. While the senders/receivers framework provides solid asynchronous primitives, it lacks a standard execution context and scheduler, which has been recognized as essential for practical use.The previous `static_thread_pool` approach was removed due to CPU oversubscription issues when multiple independent components create their own thread pools, causing performance problems in complex systems. System context addresses these issues by providing a unified execution foundation that enables different application components to work together without interfering with each other's parallel engines. As a simple parallel scheduler we can use it locally, and `sync_wait` on the work to make sure that it is complete. With forward progress delegation this would also allow the scheduler to delegate work to the blocked thread. A simple "Hello World" program with the `parallel_scheduler` is shown below:
+
+```cpp
+using namespace = std::execution;
+
+scheduler auto sch = get_parallel_scheduler();
+
+sender auto begin = schedule(sch);
+sender auto hi = then(begin, []{
+    std::cout << "Hello world! Have an int.";
+    return 13;
+});
+sender auto add_42 = then(hi, [](int arg) { return arg + 42; });
+
+auto [i] = std::this_thread::sync_wait(add_42).value();
+```
+This also gives us leverage to customize `bulk()` and `async_scope`.
+
+[P3149R10 async_scope - Creating scope for asynchronous concurrency](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p3149r10.html) 
+This proposal is about enabling RAII styles to work in code that isn’t sequential and stack-based, which makes resource handling much more convenient and robust even in a heavily async world using sender/receiver, C++ 26’s new async model. The existing structured concurrency framework provides groundwork for concurrent C++ programs but leaves three important scenarios unaddressed: progressively structuring existing unstructured concurrent programs, starting dynamic numbers of parallel tasks without losing track of them, and opting into eager execution when appropriate.
+The proposed utilities address these scenarios within two key constraints:
+
+- No detached work by default: Algorithms like `start_detached` and `ensure_started` allow concurrent work to start without built-in completion tracking, making it difficult to know when it's safe to destroy resources. All concurrent work should remain "attached" to avoid shutdown complexity.
+
+- No additional dependencies: Since existing codebases need to migrate incrementally from unstructured to structured concurrency, the tools for progressive restructuring shouldn't introduce unnecessary dependencies or risks. This also serves as a teaching aid to help experienced C++ programmers unlearn deprecated async patterns and avoid falling back to detached work habits.
+
+[P2664R10 Extend std::simd with permutation API](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p2664r10.html)
+This paper proposes adding permutation API functions to the std::simd proposal to enable element permutation across or within SIMD values. While the current std::simd proposal from the Parallelism TS lacks robust support for permutation operations, these capabilities are critical for data formatting tasks like transpose, strided operations, and interleaving, and are well-supported by modern SIMD processors' sophisticated permutation instructions. The proposal aims to make these underlying hardware instructions accessible through a generic API interface, building on Intel's suggestions for extending std::simd beyond the existing proposal.
+
+[P2876R2 Extend std::simd with more constructors and accessors](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p2876r2.html)
+This paper proposes extending `std::simd_mask` with additional constructors and accessors to enable easier conversion between `std::simd_mask` and other standard library types like `std::bitset` and integral bit representations.
+
+- Bitset Integration:
+The paper proposes bidirectional conversion between `std::simd_mask` and `std::bitset`:
+
+```cpp
+// Constructor from bitset
+constexpr basic_simd_mask(const bitset<size()>& b) noexcept;
+
+// Conversion to bitset (implicit)
+constexpr basic_simd_mask::operator bitset<size()>() const;
+
+// Named conversion to bitset (explicit)
+constexpr bitset<size()> basic_simd_mask::to_bitset() const;
+```
+
+- Integral Bit Representation:
+For compact bit patterns, the proposal adds:
+
+```cpp
+// Constructor from integral bits
+constexpr basic_simd_mask(auto unsigned_integral bits) noexcept;
+
+// Example usage for custom bit patterns
+basic_simd_mask mask(0b10101101011010010101);
+
+// Conversion to compact bit representation
+constexpr unsigned long long basic_simd_mask::to_ullong() const noexcept;
+```
+The current `std::simd` proposal lacks easy ways to convert between `simd_mask` and other data-parallel storage types. These additions enable efficient interchange with `std::bitset`, direct specification of bit patterns using integral values, and extraction of compact bit representations. The implementation experience shows these conversions are efficient on hardware with compact mask representations (like AVX-512) and provide uniform APIs for targets with wide mask representations. The paper originally included initializer list support but removed it in favor of existing CTAD and range/span constructors that achieve similar functionality with slightly more verbose syntax.
+
+[P3480R5 std::simd is a range](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p3480r5.pdf)
+The paper proposes making `basic_simd` and `basic_simd_mask` into read-only ranges, leveraging C++ 20's updated iterator concepts. Previously, C++ 17 iterator categories required `operator*` to return lvalue references, but since SIMD objects don't contain sub-objects, their `operator[]` returns prvalues, limiting iterators to `Cpp17InputIterator` category despite having random access behavior. This created a conceptual mismatch that prevented making SIMD types into ranges in the original Parallelism TS 2. With C++20's iterator concepts no longer requiring lvalue references, SIMD types can now be proper read-only ranges where iterator dereference returns prvalues and sentinels provide useful abstraction tools.
+
