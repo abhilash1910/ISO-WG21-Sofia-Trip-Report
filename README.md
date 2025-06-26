@@ -21,7 +21,7 @@ constexpr std::meta::info reflection = ^name_or_postfix_expr;
 ```
 This paved the way for [P2996R12](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p2996r12.html) by Dan Katz et al, which introduced the following additional featues
 
-- The representation of program elements via constant-expressions producing reflection values ó reflections for short ó of an opaque type `std::meta::info`
+- The representation of program elements via constant-expressions producing reflection values ‚Äî reflections for short ‚Äî of an opaque type `std::meta::info`
 - A `reflection operator` (prefix ^^) that computes a reflection value for its operand construct
 - A number of consteval metafunctions to work with reflections (including deriving other reflections)
 - Constructs called splicers to produce grammatical elements from reflections (e.g., ``[: refl :]``).
@@ -61,7 +61,7 @@ The paper has some [concrete examples](https://www.open-std.org/jtc1/sc22/wg21/d
 
 - [P3491R3](https://wg21.link/p3491)adds functions that were split off from the main reflection paper P2996, which make it easier to convert reflected data to run-time data.
 
-- [P1306R5](https://wg21.link/p1306) adds ìtemplate forî to make it easy to loop over reflection data at compile time.
+- [P1306R5](https://wg21.link/p1306) adds ‚Äútemplate for‚Äù to make it easy to loop over reflection data at compile time.
 
 - [P3096R12](https://wg21.link/p3096) adds library  support for, you guessed it, reflecting function parameters. 
 
@@ -76,7 +76,7 @@ There were several proposals in ```simd``` including the major change to have it
 
 *Nvidia Authors: Bryce Lelbach, Mark Hoemmen, Ilya Burylov, Abhilash Majumder*
 
-The idea of putting ```std::simd``` components in their own namespace, instead of in namespace std, came late in the design process.  The new namespace was originally std::simd.  Objections to the namespace being the same as the class (`std::simd::simd`) led to the namespace being changed from `std::simd` to `std::datapar` (as in, ìdata-parallel types and functionsî).  Library Evolution Group decided to rename the namespace back from `std::datapar` to `std::simd`. The changes makes it easier for users to see that these types relate to the SIMD (Single Instruction, Multiple Data) computer hardware feature.  It also avoids redundancy in names and distinguishes a SIMD register of values (ì`vec`î) from other SIMD features like bit masks.
+The idea of putting ```std::simd``` components in their own namespace, instead of in namespace std, came late in the design process.  The new namespace was originally std::simd.  Objections to the namespace being the same as the class (`std::simd::simd`) led to the namespace being changed from `std::simd` to `std::datapar` (as in, ‚Äúdata-parallel types and functions‚Äù).  Library Evolution Group decided to rename the namespace back from `std::datapar` to `std::simd`. The changes makes it easier for users to see that these types relate to the SIMD (Single Instruction, Multiple Data) computer hardware feature.  It also avoids redundancy in names and distinguishes a SIMD register of values (‚Äú`vec`‚Äù) from other SIMD features like bit masks.
 Here is an image with co-author Matthias Kretz and LWG member Christian Trott.
 
 <img src ="imgs/simd.jpg" />
@@ -171,7 +171,7 @@ This paper addresses discrepancies in a pre-existing paper related to `atomic<T>
 
 [P3718R0 Fixing Lazy Sender Algorithm Customization, Again](https://isocpp.org/files/papers/P3718R0.html)
 *Nvidia Authors: Eric Niebler*
-The Standard does not currently specify the semantics of `get_scheduler(get_env(rcvr))`.  This is defined as the ìcurrent scheduler,î but the Standard does not impose requirements on algorithms actually to execute / start / complete operations on the ìcurrent scheduler.î  The definition of `get_scheduler()` does not define any semantics, only mechanics. This paper proposes to fix this by requiring that operation states are started on the scheduler of the receiverís environment.A previous paper introducing late customization contained an error where the customization logic for `continues_on` and `schedule_from` was inadvertently reversed. This paper corrects that mistake and is added in the C++ 26 working draft.
+The Standard does not currently specify the semantics of `get_scheduler(get_env(rcvr))`.  This is defined as the ‚Äúcurrent scheduler,‚Äù but the Standard does not impose requirements on algorithms actually to execute / start / complete operations on the ‚Äúcurrent scheduler.‚Äù  The definition of `get_scheduler()` does not define any semantics, only mechanics. This paper proposes to fix this by requiring that operation states are started on the scheduler of the receiver‚Äôs environment.A previous paper introducing late customization contained an error where the customization logic for `continues_on` and `schedule_from` was inadvertently reversed. This paper corrects that mistake and is added in the C++ 26 working draft.
 
 [P3557R2 High Quality Sender Diagnostics with Constexpr Exceptions](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p3557r2.html)
 *Nvidia Authors: Eric Niebler*
@@ -222,7 +222,7 @@ std::ranges::for_each(std::execution::par_unseq,
 
 
 [P3709 Reconsider parallel_ranges::rotate_copy and reverse_copy](https://wg21.link/P3709)
-This is an extension of the previous paper. Library Evolution Working Group approved the "range-as-the-output" design for parallel range algorithms, where algorithms return past-the-last iterator for input when output size is insufficient (e.g., `std::ranges::copy` returns `input.begin() + 3` when copying only 3 elements). While this works well for simple algorithms, it creates consistency problems for `reverse_copy` and `rotate_copy` because these algorithms traverse input differentlyó`reverse_copy` goes in reverse and `rotate_copy` splits ranges, meaning past-the-last iterator is never actually the end iterator even with sufficient output size. The design challenge is that serial range algorithms always return last for these operations, but parallel versions would return different iterators even when output size is sufficient, creating inconsistency. Since future serial "range-as-the-output" algorithms may need to return both stop point and last iterator information, parallel algorithms need to be designed to return more information for random access iterators to maintain consistency between serial and parallel versions.The proposal recognizes that `reverse_copy` and `rotate_copy` need special handling despite the goal of keeping the same return types as existing range algorithms.
+This is an extension of the previous paper. Library Evolution Working Group approved the "range-as-the-output" design for parallel range algorithms, where algorithms return past-the-last iterator for input when output size is insufficient (e.g., `std::ranges::copy` returns `input.begin() + 3` when copying only 3 elements). While this works well for simple algorithms, it creates consistency problems for `reverse_copy` and `rotate_copy` because these algorithms traverse input differently‚Äî`reverse_copy` goes in reverse and `rotate_copy` splits ranges, meaning past-the-last iterator is never actually the end iterator even with sufficient output size. The design challenge is that serial range algorithms always return last for these operations, but parallel versions would return different iterators even when output size is sufficient, creating inconsistency. Since future serial "range-as-the-output" algorithms may need to return both stop point and last iterator information, parallel algorithms need to be designed to return more information for random access iterators to maintain consistency between serial and parallel versions.The proposal recognizes that `reverse_copy` and `rotate_copy` need special handling despite the goal of keeping the same return types as existing range algorithms.
 
 [P2079R8 Parallel Scheduler](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p2079r8.html)
 This proposal provides a standard async execution context that portably guarantees forward progress, aka an interface for thread pools. While the senders/receivers framework provides solid asynchronous primitives, it lacks a standard execution context and scheduler, which has been recognized as essential for practical use.The previous `static_thread_pool` approach was removed due to CPU oversubscription issues when multiple independent components create their own thread pools, causing performance problems in complex systems. System context addresses these issues by providing a unified execution foundation that enables different application components to work together without interfering with each other's parallel engines. As a simple parallel scheduler we can use it locally, and `sync_wait` on the work to make sure that it is complete. With forward progress delegation this would also allow the scheduler to delegate work to the blocked thread. A simple "Hello World" program with the `parallel_scheduler` is shown below:
@@ -244,7 +244,7 @@ auto [i] = std::this_thread::sync_wait(add_42).value();
 This also gives us leverage to customize `bulk()` and `async_scope`.
 
 [P3149R10 async_scope - Creating scope for asynchronous concurrency](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p3149r10.html) 
-This proposal is about enabling RAII styles to work in code that isnít sequential and stack-based, which makes resource handling much more convenient and robust even in a heavily async world using sender/receiver, C++ 26ís new async model. The existing structured concurrency framework provides groundwork for concurrent C++ programs but leaves three important scenarios unaddressed: progressively structuring existing unstructured concurrent programs, starting dynamic numbers of parallel tasks without losing track of them, and opting into eager execution when appropriate.
+This proposal is about enabling RAII styles to work in code that isn‚Äôt sequential and stack-based, which makes resource handling much more convenient and robust even in a heavily async world using sender/receiver, C++ 26‚Äôs new async model. The existing structured concurrency framework provides groundwork for concurrent C++ programs but leaves three important scenarios unaddressed: progressively structuring existing unstructured concurrent programs, starting dynamic numbers of parallel tasks without losing track of them, and opting into eager execution when appropriate.
 The proposed utilities address these scenarios within two key constraints:
 
 - No detached work by default: Algorithms like `start_detached` and `ensure_started` allow concurrent work to start without built-in completion tracking, making it difficult to know when it's safe to destroy resources. All concurrent work should remain "attached" to avoid shutdown complexity.
@@ -298,7 +298,7 @@ Since it not possible to cover the entirety of all the papers discussed and deba
 This paper makes it possible for portable C++ code to sort types at compile time.
 
 [P3552R2 Add a Coroutine Task Type](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p3552r2.pdf)
-This paper provides a task type to integrate coroutines with sender/receiver, C++26ís new async model.
+This paper provides a task type to integrate coroutines with sender/receiver, C++26‚Äôs new async model.
 
 [P3682 Remove std::execution::split](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p3682r0.pdf)
 This paper corrects a previous paper's erroneous description of `std::execution::split`, clarifying that it creates a multi-shot sender with shared state for both single-shot and multi-shot inputs rather than acting as identity for multi-shot senders. Following SG1's removal of `std::execution::split`, Rob Leahy and Bryce Lelbach proposed a `fork` alternative that returns a fork state object vending senders via `get_sender()` with specified cardinality for truly lazy execution, addressing split's problematic eager nature for CUDA graph schedulers.
