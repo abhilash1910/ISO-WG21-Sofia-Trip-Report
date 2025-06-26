@@ -10,7 +10,7 @@ ISO C++ Standardization Meeting for C++ 26 conlcuded last week at [Sofia, Bulgar
 
 <img src = "imgs/wg21.jpg" />
 
-The six-day (16th - 21st June) C++ standards meeting was hosted by Chaos and C++ Alliance with about 200 attendees (two-thirds in-person, one-third remote via Zoom) representing nearly 30 nations. The meeting welcomed 25 new first-time guest attendees (mostly in-person) plus additional new official national body representatives. The sessions started off with the initial Plenary guidelines on 16th and ended with the final Plenary voting polls for Core and Library at 21st.
+The six-day (16th - 21st June) C++ standards meeting was hosted by Chaos and C++ Alliance at the Grand Millenium (Sofia) with about 200 attendees (two-thirds in-person, one-third remote via Zoom) representing nearly 30 nations. The meeting welcomed 25 new first-time guest attendees (mostly in-person) plus additional new official national body representatives. The sessions started off with the initial Plenary guidelines on 16th and ended with the final Plenary voting polls for Core and Library at 21st.
 
 ## Reflection
 
@@ -308,3 +308,11 @@ This paper proposes adding `at()` member functions to `std::mdspan` for memory-s
 
 And that completes the technical aspects of this meeting, which is a significant milestone in C++ 's history. The next section contains photos which I managed to take in between the discussions.
 
+## Say Cheese!
+
+
+Here is a picture with my colleagues - Bryce Lelbach, Gonzalo Brito and Marco Foco.
+
+<img src = "imgs/bryce.jpg" />
+<img src = "imgs/marco.jpg" />
+<img src = "imgs/gonzalo.jpg" />
